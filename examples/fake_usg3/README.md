@@ -15,3 +15,11 @@ interfaces need to be remapped.  EdgeRouters with WAN and LAN on different ports
 work as intended as well.
 
 **NOTE: ALPHA CODE**
+
+## use
+
+copy `env-sample`, change the variables, `docker-compose pull`, and `docker-compose up -d`
+
+## FAQ
+
+If you have to ask it's still ALPHA, please don't bug me.
