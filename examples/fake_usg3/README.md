@@ -18,7 +18,7 @@ work as intended as well.
 
 ## use
 
-copy `env-sample`, change the variables, `docker-compose pull`, and `docker-compose up -d`
+copy `env-sample` to `.env`, change the variables, `docker-compose pull`, and `docker-compose up -d`
 
 ## FAQ
 
