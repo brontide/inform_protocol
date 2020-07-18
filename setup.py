@@ -25,6 +25,7 @@ setup(name='inform',
           'Padding',
           'pysnappy',
           'pycryptodome',
+          'requests',
       ],
 #      entry_points={
 #          'console_scripts': ['unificmd=unifiapi.cmd:main'],
