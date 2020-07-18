@@ -20,7 +20,7 @@ setup(name='inform',
       author='Eric Warnke',
       author_email='ericew@gmail.com',
       license='MIT',
-      packages=['aioedgeos'],
+      packages=['inform'],
       install_requires=[
           'Padding',
           'pysnappy',
