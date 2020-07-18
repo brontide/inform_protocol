@@ -1,0 +1,9 @@
+version: "2"
+
+services:
+  fake_usg3:
+    build: .
+    image: brontide/fake_usg3:alpha
+    env_file:
+    - .env
+ 

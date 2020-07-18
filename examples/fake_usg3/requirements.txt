@@ -1,0 +1,4 @@
+python-dotenv
+aiohttp
+aioedgeos @ git+https://github.com/brontide/aioedgeos
+inform @ git+https://github.com/brontide/inform_protocol
