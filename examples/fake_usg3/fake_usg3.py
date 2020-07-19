@@ -31,8 +31,16 @@ EDGE_URL=os.environ['EDGE_URL']
 INFORM_URL=os.environ['INFORM_URL']
 EDGE_SSL=os.environ.get('EDGE_SSL', 'f'*64).lower() # Default to enforcing ssl
 
-WAN_IFNAME=os.environ.get('WAN_IFNAME','eth0')
-LAN_IFNAME=os.environ.get('LAN_IFNAME','eth1')
+DEVICE_TYPE=os.environ.get('DEVICE_TYPE', "UGW3")
+
+WAN_IFNAME=os.environ.get('WAN_IFNAME', 'eth0')
+LAN_IFNAME=os.environ.get('LAN_IFNAME', 'eth1')
+
+REMAP_TABLE=os.environ.get('REMAP_TABLE', 'eth0:eth0,eth1:eth1,eth2:eth2,eth3:eth3')
+
+# split on , and then :
+remap = dict(( x.split(':',1) for x in REMAP_TABLE.split(',') ))
+pprint(remap)
 
 ssl_check = True
 if isinstance(EDGE_SSL, str) and len(EDGE_SSL) == 64:
@@ -56,7 +64,7 @@ state = 2
 edge_device = None
 
 def fake_mac():
-    mac = [ hex(randint(0,255))[2:] for _ in range(6) ]
+    mac = [ hex(randint(0,255))[2:].zfill(2) for _ in range(6) ]
     return ":".join(mac)
 
 # Load the mgt data or setup for adoption
@@ -65,7 +73,7 @@ try:
 except:
     mgt = {
         'authkey': "ba86f2bbe107c7c57eb5f2690775c712",
-        'version': "4.4.51.5287926",
+        'version': "4.4.50.5272479",
         'gateway_lan_mac': fake_mac(),
         }
 
@@ -154,6 +162,13 @@ def export_to_hosts(network):
 def dict_to_array(foo):
     temp = []
     for key, value in foo.items():
+        skip = True
+        for foo, bar in remap.items():
+            if key.startswith(foo):
+                skip = False
+                key = key.replace(foo,bar)
+                break
+        if skip: continue
         temp2 = value.copy()
         temp2['name'] = key
         if temp2.get('duplex','full') == 'full':
@@ -176,28 +191,20 @@ def generate_inform():
      'config_network_wan': {
          'type': 'dhcp',
      },
-#     'config_port_table': [
-#         {
-#             'ifname': 'eth0',
-#             'name': 'WAN 1'
-#         },
-#         {
-#             'ifname': 'eth1',
-#             'name': 'LAN 1'
-#         },
-#         {
-#             'ifname': 'eth1.10',
-#             'name': 'MGT'
-#         },
-#         {
-#             'ifname': 'eth1.20',
-#             'name': 'GST'
-#         },
-#         {
-#             'ifname': 'eth2',
-#             'name': 'LAN 2'
-#         }
-#     ],
+     'config_port_table': [
+         {
+             'ifname': 'eth0',
+             'name': 'WAN 1'
+         },
+         {
+             'ifname': 'eth1',
+             'name': 'LAN 1'
+         },
+         {
+             'ifname': 'eth2',
+             'name': 'LAN 2'
+         }
+     ],
      'uplink': WAN_IFNAME,
      # STUN PORT TODO
      'connect_request_ip': '127.0.0.1',
@@ -219,7 +226,7 @@ def generate_inform():
      'isolated': False,
      'locating': False,
      'mac': mgt.get('gateway_lan_mac'),
-     'model': 'UGW3',
+     'model': DEVICE_TYPE,
 #     'model_display': 'EdgeRouter 4',
 #     'netmask': '255.255.255.0',
      'required_version': '4.0.0',
@@ -450,7 +457,7 @@ def generate_inform():
         for k,v in stats.items():
             x[k] = v
         k = x.get('name', None)
-        if k == 'eth0':
+        if k == WAN_IFNAME: #WAN
             #x['gateways'] = [ gateway_lan_ip, ]
             x['latency'] = int(edge_device.sysdata['ping-data']['1.1.1.1']['avg']) # needed to register internet connection
         #if k == 'eth1':
@@ -459,6 +466,10 @@ def generate_inform():
             x['ip'] = x['addresses'][0].split("/")[0]
         except:
             pass
+        if k == LAN_IFNAME and 'ip' in x:
+            temp['ip'] = x['ip']
+
+    # Augment the network_table with address and hosts
     for x in temp['network_table']:
         try:
             x['address'] = x['addresses'][0]

@@ -4,3 +4,11 @@ EDGE_USERNAME=USER
 EDGE_PASSWORD=PW
 EDGE_URL=https://192.168.1.1/
 INFORM_URL=http://unifi:8080/inform
+
+# for ERx since controller ignores switch0 it must
+# be mapped to a eth name.
+#REMAP_TABLE=eth0:eth0,switch0:eth1
+
+# To get the IP in the devlice list put the MAPPED
+# interface with LAN ip here
+#LAN_IFNAME=eth1.1
