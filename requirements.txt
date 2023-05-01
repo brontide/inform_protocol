@@ -1,5 +1,5 @@
 Padding==0.5
 pysnappy==0.6.1
 requests==2.23.0
-Flask==1.1.2
+Flask==2.3.2
 pycryptodome==3.9.7
